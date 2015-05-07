@@ -1,0 +1,17 @@
+# today I'm checking the alignment between freesurfer brains and the anats used in my analyses conducted by afni. 
+
+## I'll look at a afew example brains to be sure
+
+# example 1 is 2927
+
+copied over brain and brainmask.mgz - must convert
+
+convert command:
+
+mri_convert brain_marissa.mgz brain_marissa.nii.gz
+mri_convert brainmask_marissa.mgz brainmask_marissa.nii.gz
+# it looks much nicer!
+
+make a new mask
+
+3dcalc -a brainmask_marissa.nii.gz expr 'notzero(a)' -prefix marissaMask.nii.gz
