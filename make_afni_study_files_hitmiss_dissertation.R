@@ -232,6 +232,44 @@ for(sub_iter in 1:length(subs)){
   
   #### make parametric #####
   
+  #### PRAMETRIC STIM  ####
+  paraVarName <- 'corrected_resp'
+  encode_onsetVarName <- 'encode_onset_trim'
+  rwd_onsetVarName <- 'reward_onset'
+  possibleParaValues <- 1:5
+  n_blocks <- 6
+  
+  if( any(is.na(sub_data[ ,paraVarName]))){
+    n_NAs <- sum(is.na(sub_data[ ,paraVarName]))
+    cat("\n Warning! ",n_NAs," NAs detected for ", sub_prefix)
+    if(n_NAs < 10){
+      cat("\n\tresetting NAs to 3 for trials...")
+      cat(as.character(sub_data[is.na(sub_data[ ,paraVarName]),'imgName']))
+      sub_data[ ,paraVarName][is.na(sub_data[ ,paraVarName])] <- 3
+    }else{
+      cat("\n\ too many NAs to fill in for ", sub_prefix,"check files and/or remove from analysis")
+    }
+  }
+  
+  # ALL
+  fileName <- paste(sub_prefix,"_encode_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data, fileName, encode_onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  
+  #### Faces 
+  fileName <- paste(sub_prefix,"_encode_place_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data[sub_data$imgType=='place', ], fileName, encode_onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  
+  # Faces
+  fileName <- paste(sub_prefix,"_encode_face_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data[sub_data$imgType=='person', ], fileName, encode_onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  
+  # Hi_Rwd
+  fileName <- paste(sub_prefix,"_encode_hiRwd_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data[sub_data$reward =='R', ], fileName, rwd_onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  
+  # Lo_Rwd
+  fileName <- paste(sub_prefix,"_encode_loRwd_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data[sub_data$reward =='N', ], fileName, rwd_onsetVarName, paraVarName, possibleParaValues,n_blocks)
   
   
 }

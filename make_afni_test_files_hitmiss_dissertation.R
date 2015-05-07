@@ -36,8 +36,8 @@ sub_prefixes <- paste("PARC_sub_",subs,sep="")
 #   setwd(subfolder)
 #   dir.create("afni_files")
 # }
-# subs<-2699
-# sub_iter = 1
+subs<-2699
+sub_iter = 1
 
 for(sub_iter in 1:length(subs)){  
   # set subject specific files
@@ -157,12 +157,22 @@ for(sub_iter in 1:length(subs)){
   write_Afni_Parametric_Files(sub_data, fileName, onsetVarName, paraVarName, possibleParaValues,n_blocks)
   
   #### Faces 
-  fileName <- paste(sub_prefix,"_recall_place_stimOnset_parametric_allblocks.txt",sep="")
+    fileName <- paste(sub_prefix,"_recall_place_stimOnset_parametric_allblocks.txt",sep="")
   write_Afni_Parametric_Files(sub_data[sub_data$imgType=='place', ], fileName, onsetVarName, paraVarName, possibleParaValues,n_blocks)
   
   # Faces
   fileName <- paste(sub_prefix,"_recall_face_stimOnset_parametric_allblocks.txt",sep="")
   write_Afni_Parametric_Files(sub_data[sub_data$imgType=='person', ], fileName, onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  
+  # Hi_Rwd
+  fileName <- paste(sub_prefix,"_recall_hiRwd_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data[sub_data$reward =='R', ], fileName, onsetVarName, paraVarName, possibleParaValues,n_blocks)
+
+  # Lo_Rwd
+  fileName <- paste(sub_prefix,"_recall_loRwd_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data[sub_data$reward =='N', ], fileName, onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  
+  
   
   
 }
