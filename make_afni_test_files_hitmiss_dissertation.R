@@ -36,8 +36,8 @@ sub_prefixes <- paste("PARC_sub_",subs,sep="")
 #   setwd(subfolder)
 #   dir.create("afni_files")
 # }
-subs<-2699
-sub_iter = 1
+# subs<-2699
+# sub_iter = 1
 
 for(sub_iter in 1:length(subs)){  
   # set subject specific files

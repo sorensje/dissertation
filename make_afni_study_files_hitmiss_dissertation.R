@@ -48,6 +48,9 @@ for(sub_iter in 1:length(subs)){
   subfolder <- paste(overfolder,sub_prefix,".results/stimuli/",sep="")
   setwd(subfolder)
   
+  # correct resonses 5/6 issue
+  sub_data$corrected_resp[sub_data$corrected_resp == 6] <- 5
+  
   
   sub_data <- study_finalcorrect[study_finalcorrect$Subject==subject,]
   sub_data <- sub_data[sort(sub_data$index),]
@@ -230,6 +233,20 @@ for(sub_iter in 1:length(subs)){
   }
   sink(file=NULL)
   
+  
+  #### make hi vs low reward.
+  # STIM ONSETS ####
+  ####
+  n_blocks <- 6
+  
+  # hi rwd
+  fileName <- paste(sub_prefix,"_study_hiRwd_rwdOnset_allblocks.txt",sep="")
+  write_Afni_Files(sub_data[sub_data$reward=='R', ], fileName, 'reward_onset',n_blocks)
+
+  # low rwd
+  fileName <- paste(sub_prefix,"_study_lowRwd_rwdOnset_allblocks.txt",sep="")
+  write_Afni_Files(sub_data[sub_data$reward=='N', ], fileName, 'reward_onset',n_blocks)
+  
   #### make parametric #####
   
   #### PRAMETRIC STIM  ####
@@ -255,7 +272,7 @@ for(sub_iter in 1:length(subs)){
   fileName <- paste(sub_prefix,"_encode_stimOnset_parametric_allblocks.txt",sep="")
   write_Afni_Parametric_Files(sub_data, fileName, encode_onsetVarName, paraVarName, possibleParaValues,n_blocks)
   
-  #### Faces 
+  #### places 
   fileName <- paste(sub_prefix,"_encode_place_stimOnset_parametric_allblocks.txt",sep="")
   write_Afni_Parametric_Files(sub_data[sub_data$imgType=='place', ], fileName, encode_onsetVarName, paraVarName, possibleParaValues,n_blocks)
   
