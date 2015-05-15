@@ -1,5 +1,7 @@
 #!/bin/tcsh -xef
 
+# script to run univariate parametric analysis of test data 
+
 # the user may specify a single subject to run with
 if ( $#argv > 0 ) then
     set subj = $argv[1]
@@ -8,8 +10,9 @@ endif
 if ( $#argv > 1 ) then
     set glm_prefix = $argv[2]
 else
-	set glm_prefix = study_stimB6
+	set glm_prefix = studyBlock6
 endif
+
 
 #### THINK ABOUT OUTPUT DIR
 # assign output directory name
@@ -17,11 +20,18 @@ set output_dir = $subj.results
 echo $output_dir
 cd $output_dir
 
+# ====== get files. 
+# set oldTestFolder = /Volumes/group/iang/biac3/gotlib7/data/PARC/testingGround/PARC_study/
+# cp -v ${oldTestFolder}/${output_dir}/stimuli/* ./stimuli
 
+# def runs.
+set runs = (`count -digits 2 1 6`)
+
+# make motion files
 cat motion_r0*_${subj}_censor.1D > motion_${subj}_censor.1D
 cat motion_demean.r0*.1D > motion_demean.1D
 
-3dDeconvolve -input pb04.$subj.r*.scale+orig.HEAD                          \
+3dDeconvolve -input pb04.$subj.r*.scale+tlrc.HEAD                          \
     -censor  motion_${subj}_censor.1D 					\
     -polort A                                                              \
     -num_stimts 14                                                          \
@@ -80,57 +90,43 @@ cat motion_demean.r0*.1D > motion_demean.1D
 	-glt_label 11 stim_HIT-MISS \
     -fout -tout -x1D X.$glm_prefix.xmat.1D -xjpeg X.jpg                                \
     -x1D_uncensored X.$glm_prefix.nocensor.xmat.1D                                     \
-    -fitts fitts.$glm_prefix.study.$subj                                                     \
-    -errts errts.$glm_prefix.study.$subj                                                   \
+    -fitts fitts.$glm_prefix.$subj                                                     \
+    -errts errts.$glm_prefix.$subj                                                   \
     -bucket stats.$glm_prefix.$subj
 
+## create non labeled versions because suck.
+
+cp X.$glm_prefix.nocensor.xmat.1D X.nocensor.xmat.1D
+cp X.$glm_prefix.xmat.1D X.xmat.1D
+
+
+# display any large pariwise correlations from the X-matrix
+1d_tool.py -show_cormat_warnings -infile X.$glm_prefix.xmat.1D |& tee out.$glm_prefix.cormat_warn.txt
 
 # create an all_runs dataset to match the fitts, errts, etc.
-3dTcat -prefix all_runs.$glm_prefix.study.$subj pb04.$subj.r*.scale+orig.HEAD
+3dTcat -prefix all_runs.$subj pb04.$subj.r*.scale+tlrc.HEAD
 
-## reml fit is leftover from old version. I think these are the stats I bring to group level?
-3dREMLfit -input all_runs.$glm_prefix.study.$subj+orig.HEAD                          \
--matrix X.$glm_prefix.study.xmat.1D   \
--usetemp  \
--tout\
--Rbuck $subj.$glm_prefix.study.rbuck 
-    
-# display any large pariwise correlations from the X-matrix
-1d_tool.py -show_cormat_warnings -infile X.$glm_prefix.study.xmat.1D |& tee out.$glm_prefix.study.cormat_warn.txt
-
-
-###### FROM OLDER SCRIPT ##### 
-
+# --------------------------------------------------
 # create a temporal signal to noise ratio dataset 
 #    signal: if 'scale' block, mean should be 100
 #    noise : compute standard deviation of errts
-3dTstat -mean -prefix rm.signal.all all_runs.$glm_prefix.study.$subj+orig
-3dTstat -stdev -prefix rm.noise.all errts.$glm_prefix.study.$subj+orig
-3dcalc -a rm.signal.all+orig                                                  \
-       -b rm.noise.all+orig                                                   \
-       -c full_mask.$subj+orig                                                \
-       -expr 'c*a/b' -prefix TSNR.$glm_prefix.$subj 
+3dTstat -mean -prefix rm.signal.all all_runs.$subj+tlrc
+3dTstat -stdev -prefix rm.noise.all errts.${glm_prefix}.${subj}+tlrc
+3dcalc -a rm.signal.all+tlrc                                                  \
+       -b rm.noise.all+tlrc                                                   \
+       -c full_mask.$subj+tlrc                                                \
+       -expr 'c*a/b' -prefix TSNR.${glm_prefix}.$subj 
 
-# compute and store GCOR (global correlation average)
-# - compute as sum of squares of global mean of unit errts
-3dTnorm -prefix rm.errts.unit errts.$glm_prefix.study.$subj+orig
-3dmaskave -quiet -mask full_mask.$subj+orig rm.errts.unit+orig >              \
-    gmean.errts.unit.1D
-3dTstat -sos -prefix - gmean.errts.unit.1D\' > out.gcor.1D
-echo "-- GCOR = `cat out.gcor.1D`"
 
-# create ideal files for fixed response stim types
-1dcat X.$glm_prefix.study.nocensor.xmat.1D'[18]' > ideal_correct_encode_allblocks.1D
-1dcat X.$glm_prefix.study.nocensor.xmat.1D'[19]' > ideal_miss_encode_allblocks.1D
-1dcat X.$glm_prefix.study.nocensor.xmat.1D > X.study.nocensor.xmat.1D
-
+# --------------------------------------------------------
 # compute sum of non-baseline regressors from the X-matrix
 # (use 1d_tool.py to get list of regressor colums)
-set reg_cols = `1d_tool.py -infile X.study.nocensor.xmat.1D -show_indices_interest`
-3dTstat -sum -prefix sum_ideal.1D X.$glm_prefix.study.nocensor.xmat.1D"[$reg_cols]"
+
+set reg_cols = `1d_tool.py -infile X.nocensor.xmat.1D -show_indices_interest`
+3dTstat -sum -prefix sum_ideal.1D X.nocensor.xmat.1D"[$reg_cols]"
 
 # also, create a stimulus-only X-matrix, for easy review
-1dcat X.$glm_prefix.study.nocensor.xmat.1D"[$reg_cols]" > X.stim.xmat.1D
+1dcat X.nocensor.xmat.1D"[$reg_cols]" > X.stim.xmat.1D
 
 # ============================ blur estimation =============================
 # compute blur estimates
@@ -139,17 +135,13 @@ touch blur_est.$subj.1D   # start with empty file
 # -- estimate blur for each run in epits --
 touch blur.epits.1D
 
-# -- retrieve tr counts
-set tr_counts = `cat tr_Counts.txt`
-
-
-set b0 = 0     # first index for current run
-set b1 = -1    # will be last index for current run
-foreach reps ( $tr_counts )
-    @ b1 += $reps  # last index for current run
-    3dFWHMx -detrend -mask full_mask.$subj+orig                               \
-        all_runs.$glm_prefix.study.$subj+orig"[$b0..$b1]" >> blur.epits.1D
-    @ b0 += $reps  # first index for next run
+# restrict to uncensored TRs, per run
+foreach run ( $runs )
+    set trs = `1d_tool.py -infile X.xmat.1D -show_trs_uncensored encoded      \
+                          -show_trs_run $run`
+    if ( $trs == "" ) continue
+    3dFWHMx -detrend -mask full_mask.$subj+tlrc                               \
+        all_runs.$subj+tlrc"[$trs]" >> blur.epits.1D
 end
 
 # compute average blur and append
@@ -160,39 +152,45 @@ echo "$blurs   # epits blur estimates" >> blur_est.$subj.1D
 # -- estimate blur for each run in errts --
 touch blur.errts.1D
 
-set b0 = 0     # first index for current run
-set b1 = -1    # will be last index for current run
-foreach reps ( $tr_counts )
-    @ b1 += $reps  # last index for current run
-    3dFWHMx -detrend -mask full_mask.$subj+orig                               \
-        errts.$glm_prefix.study.$subj+orig"[$b0..$b1]" >> blur.errts.1D
-    @ b0 += $reps  # first index for next run
+# restrict to uncensored TRs, per run
+foreach run ( $runs )
+    set trs = `1d_tool.py -infile X.xmat.1D -show_trs_uncensored encoded      \
+                          -show_trs_run $run`
+    if ( $trs == "" ) continue
+    3dFWHMx -detrend -mask full_mask.$subj+tlrc                               \
+        errts.${glm_prefix}.${subj}+tlrc"[$trs]" >> blur.errts.1D
 end
 
 # compute average blur and append
 set blurs = ( `3dTstat -mean -prefix - blur.errts.1D\'` )
 echo average errts blurs: $blurs
 echo "$blurs   # errts blur estimates" >> blur_est.$subj.1D
+echo "$blurs   # errts blur estimates" >> blur_est.${glm_prefix}.$subj.1D
 
 
 # add 3dClustSim results as attributes to the stats dset
 set fxyz = ( `tail -1 blur_est.$subj.1D` )
-3dClustSim -both -NN 123 -mask full_mask.$subj+orig                           \
+3dClustSim -both -NN 123 -mask full_mask.$subj+tlrc                           \
            -fwhmxyz $fxyz[1-3] -prefix ClustSim
 3drefit -atrstring AFNI_CLUSTSIM_MASK file:ClustSim.mask                      \
         -atrstring AFNI_CLUSTSIM_NN1  file:ClustSim.NN1.niml                  \
         -atrstring AFNI_CLUSTSIM_NN2  file:ClustSim.NN2.niml                  \
         -atrstring AFNI_CLUSTSIM_NN3  file:ClustSim.NN3.niml                  \
-        stats.$glm_prefix.$subj+orig
+        stats.$glm_prefix.$subj+tlrc
+
+# ======= Jim REML
 
 
+3dREMLfit -matrix X.${glm_prefix}.xmat.1D \
+ -mask mask_anat.$subj+tlrc \
+ -input "pb04.${subj}.r01.scale+tlrc.HEAD pb04.${subj}.r02.scale+tlrc.HEAD pb04.${subj}.r03.scale+tlrc.HEAD pb04.${subj}.r04.scale+tlrc.HEAD pb04.${subj}.r05.scale+tlrc.HEAD pb04.${subj}.r06.scale+tlrc.HEAD" \
+ -fout -tout -Rbuck stats.${glm_prefix}.${subj}_REML -Rvar stats.${glm_prefix}.${subj}_REMLvar \
+ -Rfitts fitts.${glm_prefix}.${subj}_REML -Rerrts errts.${glm_prefix}.${subj}_REML -verb
+ 
+ 
+ #+====== clean up
+ 
+rm rm*
 
-
-
-# ========================== auto block: finalize ==========================
-
-# remove temporary files
-\rm -f rm.*
-
-# return to parent directory
-cd ..
+ 
+ 

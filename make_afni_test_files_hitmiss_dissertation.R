@@ -23,7 +23,8 @@ TRlength<-2
 rewardtime <- 1.6 #seconds
 stim_time <- 6 # seconds
 condition <- "finaltest_correct"
-overfolder <-'/Volumes/group/iang/biac3/gotlib7/data/PARC/testingGround/PARC_test/'
+# overfolder <-'/Volumes/group/iang/biac3/gotlib7/data/PARC/testingGround/PARC_test/'
+overfolder <-'/Volumes/group/iang/biac3/gotlib7/data/PARC/groupSpace/PARC_test/'
 response_time <- 4
 
 ### change later
@@ -101,7 +102,6 @@ for(sub_iter in 1:length(subs)){
   ####
   n_blocks <- 6
   
-  
   fileName <- paste(sub_prefix,"_test_recStim_person_MISS_allblocks.txt",sep="")
   write_Afni_Files(sub_data[sub_data$imgType=='person' & sub_data$finaltest_correct=='0',], fileName, 'recall_onset_trim',n_blocks)
   # person hit
@@ -113,6 +113,34 @@ for(sub_iter in 1:length(subs)){
   # person miss
   fileName <- paste(sub_prefix,"_test_recStim_place_HIT_allblocks.txt",sep="")
   write_Afni_Files(sub_data[sub_data$imgType=='place' & sub_data$finaltest_correct=='1',], fileName, 'recall_onset_trim',n_blocks)
+  
+  
+  
+  ### all combined. 
+  # person hit high
+  fileName <- paste(sub_prefix,"_test_recStim_person_hiRwd_MISS_allblocks.txt",sep="")
+  write_Afni_Files(sub_data[sub_data$imgType=='person' & sub_data$reward =='R' & sub_data$finaltest_correct=='0',], fileName, 'recall_onset_trim',n_blocks)
+  fileName <- paste(sub_prefix,"_test_recStim_person_loRwd_MISS_allblocks.txt",sep="")
+  write_Afni_Files(sub_data[sub_data$imgType=='person' & sub_data$reward =='N' & sub_data$finaltest_correct=='0',], fileName, 'recall_onset_trim',n_blocks)
+  
+  #person miss
+  fileName <- paste(sub_prefix,"_test_recStim_person_hiRwd_HIT_allblocks.txt",sep="")
+  write_Afni_Files(sub_data[sub_data$imgType=='person' & sub_data$reward =='R' & sub_data$finaltest_correct=='1',], fileName, 'recall_onset_trim',n_blocks)
+  fileName <- paste(sub_prefix,"_test_recStim_person_loRwd_HIT_allblocks.txt",sep="")
+  write_Afni_Files(sub_data[sub_data$imgType=='person' & sub_data$reward =='N' & sub_data$finaltest_correct=='1',], fileName, 'recall_onset_trim',n_blocks)
+  
+  # place hit high
+  fileName <- paste(sub_prefix,"_test_recStim_place_hiRwd_MISS_allblocks.txt",sep="")
+  write_Afni_Files(sub_data[sub_data$imgType=='place' & sub_data$reward =='R' & sub_data$finaltest_correct=='0',], fileName, 'recall_onset_trim',n_blocks)
+  fileName <- paste(sub_prefix,"_test_recStim_place_loRwd_MISS_allblocks.txt",sep="")
+  write_Afni_Files(sub_data[sub_data$imgType=='place' & sub_data$reward =='N' & sub_data$finaltest_correct=='0',], fileName, 'recall_onset_trim',n_blocks)
+  
+  #person miss
+  fileName <- paste(sub_prefix,"_test_recStim_place_hiRwd_HIT_allblocks.txt",sep="")
+  write_Afni_Files(sub_data[sub_data$imgType=='place' & sub_data$reward =='R' & sub_data$finaltest_correct=='1',], fileName, 'recall_onset_trim',n_blocks)
+  fileName <- paste(sub_prefix,"_test_recStim_place_loRwd_HIT_allblocks.txt",sep="")
+  write_Afni_Files(sub_data[sub_data$imgType=='place' & sub_data$reward =='N' & sub_data$finaltest_correct=='1',], fileName, 'recall_onset_trim',n_blocks)
+  
   
   ####
   # RESPONSE ONSETS #### 
@@ -173,6 +201,20 @@ for(sub_iter in 1:length(subs)){
   write_Afni_Parametric_Files(sub_data[sub_data$reward =='N', ], fileName, onsetVarName, paraVarName, possibleParaValues,n_blocks)
   
   
+  #### crossing Reward and Stimulus Type.
+  # participants 2829, 2784, 2792, 2787 won't work.
+  # low face
+  fileName <- paste(sub_prefix,"_recall_loRwd_person_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data[sub_data$reward =='N' & sub_data$imgType=='person', ], fileName, onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  # low place
+  fileName <- paste(sub_prefix,"_recall_loRwd_place_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data[sub_data$reward =='N' & sub_data$imgType=='place', ], fileName, onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  #hi person
+  fileName <- paste(sub_prefix,"_recall_hiRwd_person_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data[sub_data$reward =='R' & sub_data$imgType=='person', ], fileName, onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  
+  fileName <- paste(sub_prefix,"_recall_hiRwd_place_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data[sub_data$reward =='R' & sub_data$imgType=='place', ], fileName, onsetVarName, paraVarName, possibleParaValues,n_blocks)
   
   
 }

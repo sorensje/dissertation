@@ -1,6 +1,7 @@
 #!/bin/tcsh -xef
 
-# script to run univariate parametric analysis of test data 
+# script to run univariate parametric analysis of study data 
+# this analysis will have separate regressors for place vs face. 
 
 # the user may specify a single subject to run with
 if ( $#argv > 0 ) then
@@ -10,7 +11,7 @@ endif
 if ( $#argv > 1 ) then
     set glm_prefix = $argv[2]
 else
-	set glm_prefix = test_para
+	set glm_prefix = studyParaStim
 endif
 
 
@@ -20,11 +21,12 @@ set output_dir = $subj.results
 echo $output_dir
 cd $output_dir
 
-  
+# 
+# 
 3dDeconvolve -input pb04.$subj.r*.scale+orig.HEAD                          \
     -censor  motion_${subj}_censor.1D 					\
     -polort A                                                              \
-    -num_stimts 8                                                         \
+    -num_stimts 9                                                         \
     -mask mask_anat.$subj+orig									\
 	-stim_file 1 motion_demean.1D'[0]' -stim_base 1 -stim_label 1 roll     \
     -stim_file 2 motion_demean.1D'[1]' -stim_base 2 -stim_label 2 pitch    \
@@ -32,12 +34,24 @@ cd $output_dir
     -stim_file 4 motion_demean.1D'[3]' -stim_base 4 -stim_label 4 dS       \
     -stim_file 5 motion_demean.1D'[4]' -stim_base 5 -stim_label 5 dL       \
     -stim_file 6 motion_demean.1D'[5]' -stim_base 6 -stim_label 6 dP       \
-    -stim_times_AM2 7 stimuli/${subj}_recall_stimOnset_parametric_allblocks.txt       \
+    -stim_times 7 stimuli/${subj}_study_hiRwd_rwdOnset_allblocks.txt       \
     'SPMG1'                                                           \
-    -stim_label 7 stim_para \
-    -stim_times 8 stimuli/${subj}_test_MemJudge_all_allblocks.txt       \
+    -stim_label 7 high_rwd \
+    -stim_times 8 stimuli/${subj}_study_lowRwd_rwdOnset_allblocks.txt       \
     'SPMG1'                                                           \
-    -stim_label 8 all_mem_Judge \
+    -stim_label 8 low_rwd \
+    -stim_times_AM2 9 stimuli/${subj}_encode_stimOnset_parametric_allblocks.txt      \
+    'SPMG1'                                                           \
+    -stim_label 9 stim_para \
+	-num_glt 4 \
+    -gltsym 'SYM: stim_para[0] -stim_para[0]'         \
+    -glt_label 1 paraStim_mean                                                     \
+    -gltsym 'SYM: stim_para[1] -stim_para[1]'         \
+    -glt_label 2 paraStim_slope                                                     \
+    -gltsym 'SYM: high_rwd[1] -low_rwd[1]'         \
+    -glt_label 3 hi-low_Rwd                                                      \
+    -gltsym 'SYM: stim_para[1] +stim_para[1] -stim_para[0] -stim_para[0]'         \
+    -glt_label 4 stim_mean-slope                                                      \
     -fout -tout -x1D X.$glm_prefix.xmat.1D -xjpeg X.jpg                                \
     -x1D_uncensored X.$glm_prefix.nocensor.xmat.1D                                     \
     -fitts fitts.$glm_prefix.$subj                                                     \
@@ -51,4 +65,5 @@ cd $output_dir
  -fout -tout -Rbuck stats.${glm_prefix}.${subj}_REML -Rvar stats.${glm_prefix}.${subj}_REMLvar \
  -Rfitts fitts.${glm_prefix}.${subj}_REML -Rerrts errts.${glm_prefix}.${subj}_REML -verb
  
+ cd ..
  

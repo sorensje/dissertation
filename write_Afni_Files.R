@@ -2,6 +2,7 @@ write_Afni_Files <- function(sData, fileName, onsetVarName, n_blocks){
   # setup
 #   n_blocks <- length(unique(sData$block))
   onsets<- list()
+  trialCount <- 0 
   
   #loop over block to get times.
   for (iter_block in 1: n_blocks){
@@ -9,7 +10,13 @@ write_Afni_Files <- function(sData, fileName, onsetVarName, n_blocks){
     if(length(onsets_iter) >0){
       onsets[[iter_block]] <- onsets_iter
     }else (onsets[[iter_block]] <-"*") #necessary for empty blocks
+    trialCount <- trialCount + length(onsets_iter)
   }
+  
+  if(trialCount < 8) {
+    cat("\n warning only ", trialCount, "unique trials in regressor: ", fileName)
+  }
+  
   
   # write files
   sink(file=fileName)

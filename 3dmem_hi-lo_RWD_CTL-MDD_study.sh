@@ -1,6 +1,5 @@
 #!/bin/tcsh -xef
 
-
 3dMEMA  -prefix stud_hi-loRWD_CTL-MDD_tlrcMSK  \
 	   -jobs 4      \
 	   -groups MDD CTL \

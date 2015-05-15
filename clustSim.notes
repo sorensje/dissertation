@@ -1,0 +1,24 @@
+# clust sim estimates made using code in FetchblurEstGroup.R
+# blur estimates come from detrended blur func files in group space. averaged over all subs
+
+# for test
+3dClustSim -both -NN 123 -mask allSubs_TestMask+tlrc                           \
+           -fwhmxyz 8.958479 8.432187 7.338985 -prefix ClustSim_paraTestGrp
+
+3drefit -atrstring AFNI_CLUSTSIM_MASK file:ClustSim.mask                      \
+        -atrstring AFNI_CLUSTSIM_NN1  file:ClustSim.NN1.niml                  \
+        -atrstring AFNI_CLUSTSIM_NN2  file:ClustSim.NN2.niml                  \
+        -atrstring AFNI_CLUSTSIM_NN3  file:ClustSim.NN3.niml                  \
+        stats.$subj+tlrc
+
+3drefit -atrstring AFNI_CLUSTSIM_NN1 file:ClustSim_paraTestGrp.NN1.niml \
+	-atrstring AFNI_CLUSTSIM_MASK file:ClustSim_paraTestGrp.mask \
+	-atrstring AFNI_CLUSTSIM_NN2 file:ClustSim_paraTestGrp.NN2.niml \
+	-atrstring AFNI_CLUSTSIM_NN3 file:ClustSim_paraTestGrp.NN3.niml \
+	grpspc_paraT_Allslope+tlrc
+
+
+# for study
+3dClustSim -both -NN 123 -mask allSubs_StudyMask+tlrc                           \
+           -fwhmxyz 8.778514 8.390726 7.362377 -prefix ClustSim_studyGrp
+

@@ -1,6 +1,5 @@
 #!/bin/tcsh -xef
 
-
 3dMEMA  -prefix tst_para_CTL-MDD_no2784_tlrcMSK  \
 	   -jobs 4      \
 	   -groups CTL MDD \

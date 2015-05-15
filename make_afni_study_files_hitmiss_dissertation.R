@@ -26,7 +26,8 @@ rewardtime <- 1.6 #seconds
 stim_time <- 6 # seconds
 condition <- "finaltest_correct"
 # overfolder <-"~/PARC_study/mvpa2/scaleup_study/"
-overfolder <- "/Volumes/group/iang/biac3/gotlib7/data/PARC/testingGround/PARC_study/"
+# overfolder <- "/Volumes/group/iang/biac3/gotlib7/data/PARC/testingGround/PARC_study/"
+overfolder <- "/Volumes/group/iang/biac3/gotlib7/data/PARC/groupSpace/PARC_study/"
 ### change later
 
 subs <- unique(study_finalcorrect$Subject)
@@ -41,9 +42,11 @@ sub_prefixes <- paste("PARC_sub_",subs,sep="")
 # sub_iter = 1
 # subs <- 3010
 
-for(sub_iter in 1:length(subs)){  
+for(sub_iter in 1:length(subs)){
+  
   # set subject specific files
   subject <- subs[sub_iter]
+  cat("\nmaking files for", as.character(subject))
   sub_prefix<-paste("PARC_sub_",subject,sep="")
   subfolder <- paste(overfolder,sub_prefix,".results/stimuli/",sep="")
   setwd(subfolder)
@@ -247,6 +250,16 @@ for(sub_iter in 1:length(subs)){
   fileName <- paste(sub_prefix,"_study_lowRwd_rwdOnset_allblocks.txt",sep="")
   write_Afni_Files(sub_data[sub_data$reward=='N', ], fileName, 'reward_onset',n_blocks)
   
+  
+  # facees
+  fileName <- paste(sub_prefix,"_person_encode_allblocks.txt",sep="")
+  write_Afni_Files(sub_data[sub_data$imgType=='person', ], fileName, 'encode_onset_trim',n_blocks)
+  
+  # places
+  fileName <- paste(sub_prefix,"_place_encode_allblocks.txt",sep="")
+  write_Afni_Files(sub_data[sub_data$imgType=='place', ], fileName, 'encode_onset_trim',n_blocks)
+  
+  
   #### make parametric #####
   
   #### PRAMETRIC STIM  ####
@@ -287,6 +300,23 @@ for(sub_iter in 1:length(subs)){
   # Lo_Rwd
   fileName <- paste(sub_prefix,"_encode_loRwd_stimOnset_parametric_allblocks.txt",sep="")
   write_Afni_Parametric_Files(sub_data[sub_data$reward =='N', ], fileName, rwd_onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  
+  #### crossing Reward and Stimulus Type.
+  # this doesn't make sesne to do though. reward and stimulus will be highly colinear, so bad idea. (says anthony)
+  # participants 2829, 2784, 2792, 2787 won't work.
+  # low face
+  fileName <- paste(sub_prefix,"_encode_loRwd_person_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data[sub_data$reward =='N' & sub_data$imgType=='person', ], fileName, encode_onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  # low place
+  fileName <- paste(sub_prefix,"_encode_loRwd_place_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data[sub_data$reward =='N' & sub_data$imgType=='place', ], fileName, encode_onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  #hi person
+  fileName <- paste(sub_prefix,"_encode_hiRwd_person_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data[sub_data$reward =='R' & sub_data$imgType=='person', ], fileName, encode_onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  
+  fileName <- paste(sub_prefix,"_encode_hiRwd_place_stimOnset_parametric_allblocks.txt",sep="")
+  write_Afni_Parametric_Files(sub_data[sub_data$reward =='R' & sub_data$imgType=='place', ], fileName, encode_onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  
   
   
 }
