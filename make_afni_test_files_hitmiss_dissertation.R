@@ -13,6 +13,10 @@ source("/Users/Jim/PARC_study/Jim_scripts/dissertation/write_Afni_Files.R")
 bothtest <- readRDS("~/Dropbox/Dissertation/data_files/bothTest_toMakeRegressors.rds")
 study_finalcorrect <- readRDS("~/Dropbox/Dissertation/data_files/study_finalcorrect_toMakeRegressors.rds")
 
+classifierEvidence <- readRDS("~/Dropbox/Dissertation/data_files/toMakeEvidence2.rds")
+classifierEvidence <- classifierEvidence[!duplicated(classifierEvidence), ]
+bothtest <- merge(bothtest,classifierEvidence, sort = FALSE,all.x = TRUE, all.y = FALSE)
+
 setwd("~/PARC_study/scandata_for_analysis/")
 
 
@@ -37,8 +41,8 @@ sub_prefixes <- paste("PARC_sub_",subs,sep="")
 #   setwd(subfolder)
 #   dir.create("afni_files")
 # }
-# subs<-2699
-# sub_iter = 1
+subs<-2699
+sub_iter = 1
 
 for(sub_iter in 1:length(subs)){  
   # set subject specific files
@@ -215,6 +219,14 @@ for(sub_iter in 1:length(subs)){
   
   fileName <- paste(sub_prefix,"_recall_hiRwd_place_stimOnset_parametric_allblocks.txt",sep="")
   write_Afni_Parametric_Files(sub_data[sub_data$reward =='R' & sub_data$imgType=='place', ], fileName, onsetVarName, paraVarName, possibleParaValues,n_blocks)
+  
+  ## writing evidenc regressor
+  
+  paraVarName <- 'scaledBySubEvidence'
+  onsetVarName <- 'recall_onset_trim'
+  possibleParaValues <- 1:5
+  n_blocks <- 6
+  
   
   
 }

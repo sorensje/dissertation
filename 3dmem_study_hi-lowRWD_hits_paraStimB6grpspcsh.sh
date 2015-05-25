@@ -41,7 +41,7 @@
 			PARC_sub_2927	stats.paraStimB6grpspc.PARC_sub_2927_REML+tlrc'[28]'	stats.paraStimB6grpspc.PARC_sub_2927_REML+tlrc'[29]'	\
 			PARC_sub_2938	stats.paraStimB6grpspc.PARC_sub_2938_REML+tlrc'[28]'	stats.paraStimB6grpspc.PARC_sub_2938_REML+tlrc'[29]'	\
 			PARC_sub_2939	stats.paraStimB6grpspc.PARC_sub_2939_REML+tlrc'[28]'	stats.paraStimB6grpspc.PARC_sub_2939_REML+tlrc'[29]'	\
-			PARC_sub_2956	stats.paraStimB6grpspc.PARC_sub_2956_REML+tlrc'[28]'	stats.paraStimB6grpspc.PARC_sub_2956_REML+tlrc'[29]'	\		-HKtest \
+			PARC_sub_2956	stats.paraStimB6grpspc.PARC_sub_2956_REML+tlrc'[28]'	stats.paraStimB6grpspc.PARC_sub_2956_REML+tlrc'[29]'	\
 		-HKtest \
 		-model_outliers \
 		-max_zeros .33    \

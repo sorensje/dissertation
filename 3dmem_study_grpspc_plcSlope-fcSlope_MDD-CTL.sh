@@ -1,6 +1,6 @@
 #!/bin/tcsh -xef
 ## redoing comparison we already know about w/ outlier modeling
-
+# hand moving results to plcSlope-fcSlope_MDD-CTL_studyGrpSpc
 
 3dMEMA  -prefix plcSlope-fcSlope_studyGrpSpc  \
 	   -jobs 4      \
